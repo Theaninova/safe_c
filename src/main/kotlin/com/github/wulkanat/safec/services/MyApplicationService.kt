@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.template.services
+package com.github.wulkanat.safec.services
 
-import org.jetbrains.plugins.template.MyBundle
+import com.github.wulkanat.safec.MyBundle
 
 class MyApplicationService {
 
