@@ -62,12 +62,24 @@ private fun PsiElement.findAllNextDeep(condition: (child: PsiElement) -> Boolean
     }
 }*/
 
-fun PsiElement.forEachDeep(startAtElement: Int = 0, executor: (child: PsiElement) -> Unit) {
+fun PsiElement.reverseForEachDeepFlat(until: PsiElement? = null, executor: (child: PsiElement) -> Unit) {
+    var currentChild = prevSibling ?: parent
+
+    while (currentChild != until) {
+        executor(currentChild)
+        currentChild = currentChild.prevSibling ?: currentChild.parent
+    }
+}
+
+fun PsiElement.forEachDeep(startAtElement: Int = 0, until: PsiElement? = null, executor: (child: PsiElement) -> Unit): Boolean {
     for (i in startAtElement until children.size) {
         val element = children[i]
+        if (element === until) return true
         executor(element)
-        element.forEachDeep(0, executor)
+        if (element.forEachDeep(0, until, executor)) return true
     }
+
+    return false
 }
 
 fun PsiElement.findAllDeep(startAtElement: Int = 0, condition: (child: PsiElement) -> Boolean): List<PsiElement> {

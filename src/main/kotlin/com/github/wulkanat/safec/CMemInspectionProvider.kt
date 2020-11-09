@@ -1,6 +1,7 @@
 package com.github.wulkanat.safec
 
 import com.github.wulkanat.safec.inspections.DisallowTopLevelBorrowsInspection
+import com.github.wulkanat.safec.inspections.EnforceDeletionWhenOwnedInspection
 import com.github.wulkanat.safec.inspections.MovedVariableInspection
 import com.intellij.codeInspection.InspectionToolProvider
 import com.intellij.codeInspection.LocalInspectionTool
@@ -10,6 +11,7 @@ class CMemInspectionProvider : InspectionToolProvider {
         return arrayOf(
                 DisallowTopLevelBorrowsInspection::class.java,
                 MovedVariableInspection::class.java,
+                EnforceDeletionWhenOwnedInspection::class.java,
         )
     }
 }
