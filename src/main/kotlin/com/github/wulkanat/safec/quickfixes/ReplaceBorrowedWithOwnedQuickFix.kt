@@ -11,9 +11,11 @@ class ReplaceBorrowedWithOwnedQuickFix : LocalQuickFix {
 
     override fun applyFix(project: Project, problem: ProblemDescriptor) {
         val declaration = if (problem.psiElement !is OCDeclaration) return else problem.psiElement as OCDeclaration
-        declaration.replace(OCElementFactory.declarationFromText(
+        declaration.replace(
+            OCElementFactory.declarationFromText(
                 declaration.text.replaceFirst("borrowed", "owned"),
                 declaration,
-        ))
+            )
+        )
     }
 }

@@ -3,16 +3,17 @@ package com.github.wulkanat.safec.inspections
 import com.github.wulkanat.safec.VariableOwnershipStatus
 import com.github.wulkanat.safec.extensions.findFirstParent
 import com.github.wulkanat.safec.extensions.forEachDeep
-import com.github.wulkanat.safec.quickfixes.ReplaceBorrowedWithOwnedQuickFix
 import com.github.wulkanat.safec.quickfixes.ReplaceExpressionQuickFix
 import com.intellij.codeHighlighting.HighlightDisplayLevel
-import com.intellij.codeInspection.LocalQuickFixOnPsiElement
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElementVisitor
 import com.jetbrains.cidr.lang.inspections.OCInspections
-import com.jetbrains.cidr.lang.psi.*
+import com.jetbrains.cidr.lang.psi.OCAssignmentExpression
+import com.jetbrains.cidr.lang.psi.OCBlockStatement
+import com.jetbrains.cidr.lang.psi.OCQualifiedExpression
+import com.jetbrains.cidr.lang.psi.OCReferenceElement
+import com.jetbrains.cidr.lang.psi.OCReferenceExpression
 import com.jetbrains.cidr.lang.psi.visitors.OCVisitor
-import kotlin.math.exp
 
 class MovedVariableInspection : OCInspections.GeneralCpp() {
     override fun worksWithClangd() = true
@@ -42,7 +43,8 @@ class MovedVariableInspection : OCInspections.GeneralCpp() {
                 if (expression.parent is OCQualifiedExpression) return
                 // exclude left hand assignments
                 if (expression.parent is OCAssignmentExpression &&
-                        (expression.parent as OCAssignmentExpression).receiverExpression == expression) return
+                    (expression.parent as OCAssignmentExpression).receiverExpression == expression
+                ) return
 
                 val originalElement = reference.originalElement
                 if (originalElement !is OCReferenceElement) return
@@ -58,8 +60,10 @@ class MovedVariableInspection : OCInspections.GeneralCpp() {
                         if (element.text == originalElement.text) {
                             val elmParent = expression.parent
                             if (elmParent is OCAssignmentExpression) {
-                                holder.registerProblem(element, "Referenced variable after it has been moved or deleted",
-                                ReplaceExpressionQuickFix(element, elmParent.receiverExpression))
+                                holder.registerProblem(
+                                    element, "Referenced variable after it has been moved or deleted",
+                                    ReplaceExpressionQuickFix(element, elmParent.receiverExpression)
+                                )
                             }
                             holder.registerProblem(element, "Referenced variable after it has been moved or deleted")
                         }

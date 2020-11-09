@@ -1,18 +1,14 @@
 package com.github.wulkanat.safec.inspections
 
 import com.github.wulkanat.safec.VariableOwnershipStatus
-import com.github.wulkanat.safec.extensions.checkBox
 import com.github.wulkanat.safec.quickfixes.ReplaceBorrowedWithOwnedQuickFix
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.openapi.ui.VerticalFlowLayout
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.PsiFile
 import com.jetbrains.cidr.lang.inspections.OCInspections
 import com.jetbrains.cidr.lang.psi.OCDeclaration
 import com.jetbrains.cidr.lang.psi.visitors.OCVisitor
-import javax.swing.JComponent
-import javax.swing.JPanel
 
 class DisallowTopLevelBorrowsInspection : OCInspections.GeneralCpp() {
     override fun worksWithClangd() = true
@@ -28,8 +24,10 @@ class DisallowTopLevelBorrowsInspection : OCInspections.GeneralCpp() {
             override fun visitDeclaration(declaration: OCDeclaration?) {
                 declaration ?: return
                 if (declaration.type.name matches VariableOwnershipStatus.BORROWED.pattern && declaration.parent is PsiFile) {
-                    holder.registerProblem(declaration, "Top-level borrows compromise memory safety",
-                            ReplaceBorrowedWithOwnedQuickFix())
+                    holder.registerProblem(
+                        declaration, "Top-level borrows compromise memory safety",
+                        ReplaceBorrowedWithOwnedQuickFix()
+                    )
                 }
             }
         }

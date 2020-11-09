@@ -1,16 +1,18 @@
 package com.github.wulkanat.safec.inspections
 
 import com.github.wulkanat.safec.extensions.findFirstParent
-import com.github.wulkanat.safec.extensions.forEachDeep
 import com.github.wulkanat.safec.extensions.reverseForEachDeepFlat
 import com.github.wulkanat.safec.quickfixes.InsertDeleteQuickFix
-import com.github.wulkanat.safec.quickfixes.ReplaceBorrowedWithOwnedQuickFix
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
 import com.jetbrains.cidr.lang.inspections.OCInspections
-import com.jetbrains.cidr.lang.psi.*
+import com.jetbrains.cidr.lang.psi.OCAssignmentExpression
+import com.jetbrains.cidr.lang.psi.OCDeclaration
+import com.jetbrains.cidr.lang.psi.OCFunctionDeclaration
+import com.jetbrains.cidr.lang.psi.OCMacroCall
+import com.jetbrains.cidr.lang.psi.OCMacroCallArgument
+import com.jetbrains.cidr.lang.psi.OCReturnStatement
 import com.jetbrains.cidr.lang.psi.visitors.OCVisitor
 
 class EnforceDeletionWhenOwnedInspection : OCInspections.GeneralCpp() {
@@ -31,7 +33,7 @@ class EnforceDeletionWhenOwnedInspection : OCInspections.GeneralCpp() {
                 val variablesWithMissingDelete = mutableListOf<String>()
 
                 val parent = statement.findFirstParent { it is OCFunctionDeclaration }.first
-                statement.reverseForEachDeepFlat (parent) { element ->
+                statement.reverseForEachDeepFlat(parent) { element ->
                     when (element) {
                         is OCDeclaration -> {
                             element.declarators.forEach { declarator ->
@@ -42,13 +44,15 @@ class EnforceDeletionWhenOwnedInspection : OCInspections.GeneralCpp() {
                         is OCMacroCall -> {
                             variables += element.children.filterIsInstance<OCMacroCallArgument>().first().text
                         }
-                        is OCAssignmentExpression -> { element.sourceExpression?.text?.let { variables += it }}
+                        is OCAssignmentExpression -> { element.sourceExpression?.text?.let { variables += it } }
                     }
                 }
 
                 variablesWithMissingDelete.forEach {
-                    holder.registerProblem(statement, "Missing delete for \"${it}\"",
-                            InsertDeleteQuickFix(it))
+                    holder.registerProblem(
+                        statement, "Missing delete for \"${it}\"",
+                        InsertDeleteQuickFix(it)
+                    )
                 }
             }
 

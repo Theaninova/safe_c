@@ -7,13 +7,13 @@ import com.jetbrains.cidr.lang.refactoring.util.OCChangeUtil
 import com.jetbrains.cidr.lang.util.OCElementFactory
 
 class InsertDeleteQuickFix(private val variableName: String) : LocalQuickFix {
-    override fun getFamilyName() = "Insert \"delete(${variableName})\""
+    override fun getFamilyName() = "Insert \"delete($variableName)\""
 
     override fun applyFix(project: Project, problem: ProblemDescriptor) {
         OCChangeUtil.addBefore(
-                problem.startElement.parent,
-                OCElementFactory.statementFromText("delete(${variableName})", problem.startElement),
-                problem.startElement,
+            problem.startElement.parent,
+            OCElementFactory.statementFromText("delete($variableName)", problem.startElement),
+            problem.startElement,
         )
     }
 }
