@@ -5,15 +5,9 @@
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
-    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.cidr.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.wulkanat.safec.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.wulkanat.safec.services.MyProjectService"/>
+        <inspectionToolProvider implementation="com.github.wulkanat.safec.CMemInspectionProvider"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.wulkanat.safec.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
 </idea-plugin>
