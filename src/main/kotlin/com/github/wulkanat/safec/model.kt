@@ -1,5 +1,5 @@
 package com.github.wulkanat.safec
 
 enum class VariableOwnershipStatus(val pattern: Regex) {
-    OWNED("\\w_owned".toRegex()), BORROWED("\\w_borrowed".toRegex())
+    OWNED("\\w+_owned".toRegex()), BORROWED("\\w+_borrowed".toRegex())
 }
