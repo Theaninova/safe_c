@@ -1,8 +1,14 @@
 # Safe Heap
 
-This requires an extra step in the compilation process to check heap.
+![Build](https://github.com/wulkanat/safe_c/workflows/Build/badge.svg)
+[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 
-Ownership marks variables as moved once they go out of scope.
+<!-- Plugin description -->
+Rust, but it's C. Static memory safety with no runtime overhead whatsoever.
+This requires an extra step in the compilation process to check heap, once
+you fix all errors the code will compile with any C compiler and be safe.
+<!-- Plugin description end -->
 
 ## Concept
 
@@ -190,3 +196,5 @@ foo.raw
 // no error :(
 int *foo = calloc(sizeof(int), 1);
 ```
+##### Structs
+Variables in structs are more of a general problem... later.
