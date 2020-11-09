@@ -23,14 +23,6 @@ class DisallowTopLevelBorrowsInspection : OCInspections.GeneralCpp() {
     override fun getDefaultLevel(): HighlightDisplayLevel = HighlightDisplayLevel.ERROR
     override fun getStaticDescription() = "Top level borrows would compromise memory safety, as they are still there after the function is exited"
 
-    /*var disallowTopLevelBorrows = true
-
-    override fun createOptionsPanel(): JComponent? {
-        return JPanel(VerticalFlowLayout()).apply {
-            add(checkBox("Disallow top-level borrows") { disallowTopLevelBorrows = it })
-        }
-    }*/
-
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
         return object : OCVisitor() {
             override fun visitDeclaration(declaration: OCDeclaration?) {

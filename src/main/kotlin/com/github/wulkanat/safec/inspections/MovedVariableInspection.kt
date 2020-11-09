@@ -1,16 +1,18 @@
 package com.github.wulkanat.safec.inspections
 
 import com.github.wulkanat.safec.VariableOwnershipStatus
-import com.github.wulkanat.safec.extensions.findAllDeep
 import com.github.wulkanat.safec.extensions.findFirstParent
 import com.github.wulkanat.safec.extensions.forEachDeep
 import com.github.wulkanat.safec.quickfixes.ReplaceBorrowedWithOwnedQuickFix
+import com.github.wulkanat.safec.quickfixes.ReplaceExpressionQuickFix
 import com.intellij.codeHighlighting.HighlightDisplayLevel
+import com.intellij.codeInspection.LocalQuickFixOnPsiElement
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElementVisitor
 import com.jetbrains.cidr.lang.inspections.OCInspections
 import com.jetbrains.cidr.lang.psi.*
 import com.jetbrains.cidr.lang.psi.visitors.OCVisitor
+import kotlin.math.exp
 
 class MovedVariableInspection : OCInspections.GeneralCpp() {
     override fun worksWithClangd() = true
@@ -21,47 +23,46 @@ class MovedVariableInspection : OCInspections.GeneralCpp() {
     override fun getDefaultLevel(): HighlightDisplayLevel = HighlightDisplayLevel.ERROR
     override fun getStaticDescription() = "The variable could have changed after it has been moved"
 
+    /*var movedVariableCheck = true
+    var enforceVariableDeletion = true
+
+    override fun createOptionsPanel(): JComponent? {
+        return JPanel(VerticalFlowLayout()).apply {
+            add(checkBox("Disallow usage of variable after it has been moved") { movedVariableCheck = it })
+            add(checkBox("Enforce deletion of variables that haven't been moved") { enforceVariableDeletion = it })
+        }
+    }*/
+
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
         return object : OCVisitor() {
-            /*override fun visitAssignmentExpression(expression: OCAssignmentExpression?) {
-                expression ?: return
-                val originalElement = (if (expression.sourceExpression is OCReferenceElement)
-                    expression.sourceExpression as OCReferenceElement else return).originalElement
-
-                expression.findNextDeep { it is OCReferenceElement && it.isReferenceTo(originalElement) }?.let {
-                    holder.registerProblem(it, "Referenced variable after it has been moved",
-                            ReplaceBorrowedWithOwnedQuickFix())
-                }
-
-                /*val (parent, child) = expression.findFirstParent { it is OCBlockStatement }
-                parent ?: return
-                val index = parent.children.indexOf(child)
-                parent.findAllDeep(index) {
-                    it is OCReferenceElement && it.reference?.isReferenceTo(originalReference.element) == true
-                }.forEach {
-
-                }*/
-            }*/
-
             override fun visitReferenceExpression(expression: OCReferenceExpression?) {
                 val a = expression
                 val reference = expression?.referenceElement ?: return
                 // allow access to .raw and .borrowed
                 if (expression.parent is OCQualifiedExpression) return
+                // exclude left hand assignments
+                if (expression.parent is OCAssignmentExpression &&
+                        (expression.parent as OCAssignmentExpression).receiverExpression == expression) return
 
                 val originalElement = reference.originalElement
                 if (originalElement !is OCReferenceElement) return
                 if (!(expression.resolvedType.name matches VariableOwnershipStatus.OWNED.pattern)) return
 
                 val (parent, child) = expression.findFirstParent { it is OCBlockStatement }
-                parent!!.forEachDeep(parent.children.indexOf(child)) {
-                    if (it === reference) {
-                        return@forEachDeep
-                    }
+                parent!!.forEachDeep(parent.children.indexOf(child)) { element ->
+                    if (element is OCReferenceElement) {
+                        if (element === reference) {
+                            return@forEachDeep
+                        }
 
-                    if (it is OCReferenceElement && it.text == originalElement.text) {
-                        holder.registerProblem(it, "Referenced variable after it has been moved",
-                                ReplaceBorrowedWithOwnedQuickFix())
+                        if (element.text == originalElement.text) {
+                            val elmParent = expression.parent
+                            if (elmParent is OCAssignmentExpression) {
+                                holder.registerProblem(element, "Referenced variable after it has been moved or deleted",
+                                ReplaceExpressionQuickFix(element, elmParent.receiverExpression))
+                            }
+                            holder.registerProblem(element, "Referenced variable after it has been moved or deleted")
+                        }
                     }
                 }
             }
