@@ -9,7 +9,7 @@ class DereferenceQuickFix : LocalQuickFix {
     override fun getFamilyName() = "Dereference variable"
 
     override fun applyFix(project: Project, problem: ProblemDescriptor) {
-        OCElementFactory.expressionFromText("*(${problem.startElement.text})", problem.startElement)?.let {
+        OCElementFactory.expressionFromText("(*${problem.startElement.text})", problem.startElement)?.let {
             problem.startElement.replace(it)
         }
     }

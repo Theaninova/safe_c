@@ -5,7 +5,7 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
 
 class DeleteQuickFix : LocalQuickFix {
-    override fun getFamilyName() = "Delete @DirtiesContext"
+    override fun getFamilyName() = "Delete statement"
 
     override fun applyFix(project: Project, problem: ProblemDescriptor) {
         problem.psiElement.delete()

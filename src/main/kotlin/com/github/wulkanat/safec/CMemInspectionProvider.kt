@@ -1,5 +1,6 @@
 package com.github.wulkanat.safec
 
+import com.github.wulkanat.safec.inspections.DanglingDeleteInspection
 import com.github.wulkanat.safec.inspections.DisallowTopLevelBorrowsInspection
 import com.github.wulkanat.safec.inspections.EnforceDeletionWhenOwnedInspection
 import com.github.wulkanat.safec.inspections.MovedVariableInspection
@@ -14,6 +15,7 @@ class CMemInspectionProvider : InspectionToolProvider {
             MovedVariableInspection::class.java,
             EnforceDeletionWhenOwnedInspection::class.java,
             UsingRawFieldWithoutDereferenceInspection::class.java,
+            DanglingDeleteInspection::class.java,
         )
     }
 }

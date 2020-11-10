@@ -4,6 +4,7 @@ import com.github.wulkanat.safec.VariableOwnershipStatus
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.elementType
 import com.jetbrains.cidr.lang.parser.OCTokenTypes
+import com.jetbrains.cidr.lang.psi.OCElement
 
 fun PsiElement.getOwnershipStatus(): VariableOwnershipStatus? {
     if (elementType == OCTokenTypes.IDENTIFIER) {
@@ -15,6 +16,38 @@ fun PsiElement.getOwnershipStatus(): VariableOwnershipStatus? {
     }
 
     return null
+}
+
+fun OCElement.isPartOfExpandedMacro(): Boolean {
+    return textLength == 0
+}
+
+inline fun <reified T> PsiElement.findNext(): T? {
+    var nextElement = nextSibling ?: return null
+    while (nextElement !is T) {
+        nextElement = nextElement.nextSibling ?: return null
+    }
+
+    return nextElement
+}
+
+inline fun <reified T> PsiElement.firstParent(): T? {
+    var newParent: PsiElement = parent ?: return null
+    while (newParent !is T) {
+        newParent = newParent.parent ?: return null
+    }
+
+    return newParent
+}
+
+inline fun <reified T> PsiElement.firstParentBefore(): PsiElement? {
+    if (parent is T) return this
+    var newParent: PsiElement = parent ?: return this
+    while ((newParent.parent ?: return null) !is T) {
+        newParent = newParent.parent
+    }
+
+    return newParent
 }
 
 fun PsiElement.findFirstParent(condition: (child: PsiElement) -> Boolean): Pair<PsiElement?/*Parent*/, PsiElement/*Child*/> {

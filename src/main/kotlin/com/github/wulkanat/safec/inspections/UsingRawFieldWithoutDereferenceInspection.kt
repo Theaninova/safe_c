@@ -2,6 +2,7 @@ package com.github.wulkanat.safec.inspections
 
 import com.github.wulkanat.safec.VariableOwnershipStatus
 import com.github.wulkanat.safec.extensions.findFirstParent
+import com.github.wulkanat.safec.extensions.isPartOfExpandedMacro
 import com.github.wulkanat.safec.quickfixes.DereferenceQuickFix
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.ProblemsHolder
@@ -25,9 +26,10 @@ class UsingRawFieldWithoutDereferenceInspection : OCInspections.GeneralCpp() {
         return object : OCVisitor() {
             override fun visitQualifiedExpression(expression: OCQualifiedExpression?) {
                 expression ?: return
+                if (expression.isPartOfExpandedMacro()) return
 
                 if (expression.qualifier.resolvedType.name matches VariableOwnershipStatus.ALL.pattern && expression.symbolName == "raw") {
-                    val expr = expression.findFirstParent { it !is OCParenthesizedExpression }.first
+                    val expr = expression.parent
                     if (expr !is OCUnaryExpression || expr.operationName != "*") {
                         holder.registerProblem(expression, "Using raw field without dereference", DereferenceQuickFix())
                     }
