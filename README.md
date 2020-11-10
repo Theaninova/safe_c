@@ -30,7 +30,50 @@ it anymore as it could have been deallocated.
 
 ## Usage
 
-TODO;
+Create a new header file with this content
+```c
+#include <stdlib.h>
+
+#define HEAP_TYPE(type)       \
+typedef union {               \
+     type *raw;               \
+} type##_borrowed;            \
+typedef union {               \
+    type *raw;                \
+    type##_borrowed borrowed; \
+} type##_owned;
+
+#define new(type) { .raw = calloc(sizeof(type##_owned), 1) }
+#define delete(variable) free(variable.borrowed.raw)
+```
+
+Instead of creating a pointer and allocating memory directly, the process is much more
+similar to something like Java, but it still requires you to manually place delete calls.
+This is because the check is not an in-between compiler, but purely a linting-like
+process. The memory usage doesn't change, it will still be just an `int*` on the stack
+and `sizeof(int)` on the heap.
+
+Example for an `int`
+```c
+HEAP_TYPE(int)
+
+void foo(int_borrowed bar) {
+    (*bar.raw)++;
+}
+
+int main() {
+    int_owned foo = new(int);
+    int_owned bar = new(int);
+    
+    foo(foo.borrowed);
+    delete(foo);
+
+    int_owned baz = bar;
+    delete(baz);
+
+    return 0;
+}
+```
 
 ## Implementation
 
