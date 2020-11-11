@@ -8,6 +8,8 @@
 Rust, but it's C. Static memory safety with no runtime overhead whatsoever.
 This requires an extra step in the compilation process to check heap, once
 you fix all errors the code will compile with any C compiler and be safe.
+
+This does *not* solve null pointers.
 <!-- Plugin description end -->
 
 ## Concept
